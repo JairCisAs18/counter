@@ -21,6 +21,10 @@ edit_btn = Button(root, width=30, image=edit_icon, borderwidth=3)
 edit_btn.place(x=500, y=10)
 icon = icon.subsample(6, 6)
 cancel = cancel.subsample(6,6)
+accept = PhotoImage(file=r'arrow.png')
+accept = accept.subsample(6, 6) 
+reject = PhotoImage(file=r'cross.png')
+reject = reject.subsample(10, 10)
 
 def show_info():
     btn.place_forget()
@@ -102,10 +106,10 @@ def settings():
     set.title('Configuración')
     set.geometry('550x700+480+20')
     headers = ['MODEL_N:', 'RNUMBER:', 'PROCESS_N:', 'LINE:', 'REJECT RATE:', 'TAKT TIME:']
-    accept = PhotoImage(file=r'arrow.png')
-    accept = accept.subsample(5, 5)
-    reject = PhotoImage(file=r'cross.png')
-    reject = reject.subsample(5, 5)
+    accept_btn = Button(set, text='Aceptar', width=150, height=100, font=('Arial', 14, 'bold'), image=accept, compound='top', pady=12)
+    accept_btn.place(x=80, y=400)
+    reject_btn = Button(set, text='Cancelar', width=150, height=100, font=('Arial', 14, 'bold'), image=reject, compound='top', pady=12)
+    reject_btn.place(x=310, y=400)
     dist = 20
     for label in headers:
         Label(set, text=label, font=('Arial', 18, 'bold')).place(x=30, y=dist)
