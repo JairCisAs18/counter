@@ -25,8 +25,16 @@ accept = PhotoImage(file=r'arrow.png')
 accept = accept.subsample(6, 6) 
 reject = PhotoImage(file=r'cross.png')
 reject = reject.subsample(10, 10)
+current = 0
 
 def show_info():
+    global prod_field, shift_field, start_field, end_field
+    root.protocol('WM_DELETE_WINDOW', lambda:None)
+    model = selected.get()
+    plan = int(prod_field.get())
+    shift = shift_field.get()
+    start = start_field.get()
+    end = end_field.get()
     btn.place_forget()
     close_btn.place(x=200, y=350)
     display = win.EnumDisplayMonitors()[1][2]
@@ -34,9 +42,11 @@ def show_info():
     y = display[1]
     screen_width = display[2] - x
     screen_height = display[3] - y- 80
+    # screen_width = root.winfo_screenwidth()
+    # screen_height = root.winfo_screenheight()
     x_separation = screen_width/3
     y_separation = screen_height/5
-    window = Toplevel()
+    window = Toplevel(root)
     window.title('Información')
     date = dt.date.today()
     def set_time():
@@ -46,8 +56,25 @@ def show_info():
     def hide_info():
         close_btn.place_forget()
         btn.place(x=200, y=350)
+        root.protocol('WM_DELETE_WINDOW', root.quit)
         window.destroy()
         window.update()
+    def update_counter(event):
+        global current
+        nonlocal current_label
+        if event.keysym == 'space':
+            current += 1
+            current_label.config(text=f'{current}')
+            if len(str(current)) == 1:
+                current_label.place(x=x_separation*1.45, y=y_separation*2.2)
+            elif len(str(current)) == 2:
+                current_label.place(x=x_separation*1.4, y=y_separation*2.2)
+            elif len(str(current)) == 3:
+                current_label.place(x=x_separation*1.35, y=y_separation*2.2)
+            elif len(str(current)) == 4:
+                current_label.place(x=x_separation*1.3, y=y_separation*2.2)
+    window.bind('<Key>', update_counter)
+    window.focus_set()
     #window.attributes('-fullscreen', True)
     close_btn.config(image=cancel, command=hide_info)
     window.geometry(f'{screen_width}x{screen_height}+{x}+{y}')
@@ -79,21 +106,31 @@ def show_info():
     Label (canvas, text='TAKT TIME', font=('Arial', 35, 'bold'), bg='black', fg='white').place(x=x_separation*2+25, y=y_separation*3+25)
     Label (canvas, text='REJECT RATE', font=('Arial', 30, 'bold'), bg='black', fg='white').place(x=x_separation*2+20, y=y_separation*3.5+25)
     Label (canvas, text='LENGTH', font=('Arial', 35, 'bold'), bg='black', fg='white').place(x=x_separation*2.1, y=y_separation*4+25)
-    Label (canvas, text='600', font=('Arial', 80, 'bold'), bg='black', fg='cyan').place(x=x_separation*1.35, y=y_separation/5)
+    Label (canvas, text=f'{plan}', font=('Arial', 80, 'bold'), bg='black', fg='cyan').place(x=x_separation*1.35, y=y_separation/5)
     Label (canvas, text='740', font=('Arial', 80, 'bold'), bg='black', fg='cyan').place(x=x_separation*1.35, y=y_separation*1.2)
-    Label (canvas, text='5', font=('Arial', 80, 'bold'), bg='black', fg='lime green').place(x=x_separation*1.45, y=y_separation*2.2)
+    #Label (canvas, text=f'{actual}', font=('Arial', 80, 'bold'), bg='black', fg='lime green').place(x=x_separation*1.45, y=y_separation*2.2)
     Label (canvas, text='756', font=('Arial', 80, 'bold'), bg='black', fg='cyan').place(x=x_separation*1.35, y=y_separation*3.2)
     Label (canvas, text='10.5%', font=('Arial', 80, 'bold'), bg='black', fg='red').place(x=x_separation*1.25, y=y_separation*4.2)
     Label (canvas, text=f'{date:%d/%m/%Y}', font=('Arial', 30, 'bold'), bg='black', fg='yellow').place(x=x_separation*2.5+50, y=25)
-    Label (canvas, text='R16-B074', font=('Arial', 30, 'bold'), bg='black', fg='green3').place(x=x_separation*2.5+55, y=y_separation+25)
+    Label (canvas, text=model, font=('Arial', 30, 'bold'), bg='black', fg='green3').place(x=x_separation*2.5+55, y=y_separation+25)
     Label (canvas, text='12', font=('Arial', 30, 'bold'), bg='black', fg='green3').place(x=x_separation*2.7, y=y_separation*1.5+25)
-    Label (canvas, text='07:00 - 16:25', font=('Arial', 30, 'bold'), bg='black', fg='green3').place(x=x_separation*2.5+40, y=y_separation*2+25)
-    Label (canvas, text='1', font=('Arial', 30, 'bold'), bg='black', fg='green3').place(x=x_separation*2.7+10, y=y_separation*2.5+25)
+    Label (canvas, text=f'{start} - {end}', font=('Arial', 30, 'bold'), bg='black', fg='green3').place(x=x_separation*2.5+40, y=y_separation*2+25)
+    Label (canvas, text=shift, font=('Arial', 30, 'bold'), bg='black', fg='green3').place(x=x_separation*2.7+10, y=y_separation*2.5+25)
     Label (canvas, text='45.00', font=('Arial', 30, 'bold'), bg='black', fg='cyan').place(x=x_separation*2.66, y=y_separation*3+25)
     Label (canvas, text='1 ppm', font=('Arial', 30, 'bold'), bg='black', fg='red').place(x=x_separation*2.65, y=y_separation*3.5+25)
     time_label = Label (canvas, text='', font=('Arial', 30, 'bold'), bg='black', fg='yellow')
+    current_label = Label(canvas, text=f'{current}', font=('Arial', 80, 'bold'), bg='black', fg='lime green')
     set_time()
     time_label.place(x=x_separation*2.6, y=y_separation*0.5+25)
+    current_label.place(x=x_separation*1.45, y=y_separation*2.2)
+    # if len(str(actual)) == 1:
+    #     actual_label.place(x=x_separation*1.45, y=y_separation*2.2)
+    # elif len(str(actual)) == 2:
+    #     actual_label.place(x=x_separation*1.4, y=y_separation*2.2)
+    # elif len(str(actual)) == 3:
+    #     actual_label.place(x=x_separation*1.35, y=y_separation*2.2)
+    # elif len(str(actual)) == 4:
+    #     actual_label.place(x=x_separation*1.3, y=y_separation*2.2)
     # label_test = Label (canvas, text='Prueba', font=('Arial', 35, 'bold'), bg='black', fg='white')
     # def press():
     #     label_test.config(text='Hello')
@@ -109,7 +146,9 @@ def settings():
     accept_btn = Button(set, text='Aceptar', width=150, height=100, font=('Arial', 14, 'bold'), image=accept, compound='top', pady=12)
     accept_btn.place(x=80, y=400)
     reject_btn = Button(set, text='Cancelar', width=150, height=100, font=('Arial', 14, 'bold'), image=reject, compound='top', pady=12)
-    reject_btn.place(x=310, y=400)
+    def close():
+        set.destroy()
+        set.update()
     dist = 20
     for label in headers:
         Label(set, text=label, font=('Arial', 18, 'bold')).place(x=30, y=dist)
@@ -126,6 +165,8 @@ def settings():
     reject_field.place(x=250, y=260)
     takt_field = Entry(set, font=('Arial', 18, 'bold'), width=18, borderwidth=2)
     takt_field.place(x=250, y=320)
+    reject_btn.config(command=close)
+    reject_btn.place(x=310, y=400)
 
 model_label = Label(root, text='Modelo:', font=('Arial', 18, 'bold'))
 model_label.place(x=15, y=10)
